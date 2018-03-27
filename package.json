@@ -1,0 +1,28 @@
+{
+  "name": "inspeql",
+  "version": "1.0.0",
+  "description": "Krizalys' InSpeQL tool.",
+  "license": "BSD-3-Clause",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krizalys/inspeql.git"
+  },
+  "author": {
+    "name": "Christophe Vidal",
+    "email": "support@krizalys.com",
+    "url": "http://www.krizalys.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/krizalys/inspeql/issues"
+  },
+  "homepage": "https://github.com/krizalys/inspeql#readme",
+  "dependencies": {
+    "js-yaml": "^3.11.0",
+    "mssql": "^4.1.0",
+    "mustache": "^2.3.0"
+  }
+}
