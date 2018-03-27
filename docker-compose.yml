@@ -1,0 +1,30 @@
+version: '3.6'
+
+services:
+  # WD=$(pwd) docker-compose --project-name inspeql up mssql_server_linux
+  mssql_server_linux:
+    environment:
+      - ACCEPT_EULA=Y
+      - 'SA_PASSWORD=TheSaPassword!'
+    image: 'microsoft/mssql-server-linux:latest'
+    ports:
+      - 1433
+    volumes:
+      - type:   bind
+        source: '${WD}'
+        target: '${WD}'
+    working_dir: '${WD}'
+
+  # docker-compose --project-name inspeql exec mssql_server_linux /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'TheSaPassword!' -i migration.sql
+  # docker-compose --project-name inspeql exec mssql_server_linux /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'TheSaPassword!'
+
+  # WD=$(pwd) docker-compose --project-name inspeql run node node index.js
+  node:
+    environment:
+      - MSSQL_HOST=mssql_server_linux
+    image: 'node:9.9.0-alpine'
+    volumes:
+      - type:   bind
+        source: '${WD}'
+        target: '${WD}'
+    working_dir: '${WD}'
