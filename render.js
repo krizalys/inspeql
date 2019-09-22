@@ -6,20 +6,41 @@ const util     = require("util")
 const readFile  = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
 
+function defineColumn(name, type, isNullable, isPrimaryKey) {
+  return `${name} ${type} ${isNullable ? '' : 'NOT '}NULL${isPrimaryKey ? ' PRIMARY KEY' : ''}`
+}
+
+function defineTableBody(columns, primaryKeys) {
+  columns     = columns.map(([name, type, isNullable, isPrimaryKey]) => defineColumn(name, type, isNullable, isPrimaryKey) + ",")
+  primaryKeys = `PRIMARY KEY (${primaryKeys.join(", ")})`
+  return columns.concat(primaryKeys)
+}
+
 function renderQuery(template, query) {
   const values = {
     table_name:         query.table_name,
     table_alias:        query.table_alias,
     staging_table_name: query.staging_table_name,
 
+    staging_table_body: () => {
+      const columns = query.fields.map(column => {
+        column    = [...column]
+        column[0] = column[0].replace(/^[^.]*\./, "")
+        column[3] = false
+        return column
+      })
+
+      return defineTableBody(columns, query.primary_key)
+    },
+
     fields: () => {
-      const head = query.fields.slice(0, -1).map(field => field + ",")
-      const tail = query.fields[query.fields.length - 1]
+      const head   = query.fields.slice(0, -1).map(([field]) => field + ",")
+      const [tail] = query.fields[query.fields.length - 1]
       return head.concat(tail)
     },
 
     stg_fields: () => {
-      const fields = query.fields.map(field => field.replace(/^[^.]*\./, ""))
+      const fields = query.fields.map(([field]) => field.replace(/^[^.]*\./, ""))
       const head   = fields.slice(0, -1).map(field => field + ",")
       const tail   = fields[fields.length - 1]
       return head.concat(tail)
@@ -85,26 +106,26 @@ function renderQuery(template, query) {
         "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\hotel-security.ms.sql",
         "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_in_security_details_v1.sql",
       ],
-      [
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\hotel-bank-account.yml",
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\hotel-bank-account.ms.sql",
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_hotel_bank_account_details_v1.sql",
-      ],
+      // [
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\hotel-bank-account.yml",
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\hotel-bank-account.ms.sql",
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_hotel_bank_account_details_v1.sql",
+      // ],
       // [
       //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\hotel-channel-manager.yml",
       //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\hotel-channel-manager.ms.sql",
       //   "",
       // ],
-      [
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\hotel-auth-hot.yml",
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\hotel-auth-hot.ms.sql",
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_in_auth_hot_details_v1.sql",
-      ],
-      [
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\ycs3.yml",
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\ycs3.ms.sql",
-        "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_in_ycs3_details_v1.sql",
-      ],
+      // [
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\hotel-auth-hot.yml",
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\hotel-auth-hot.ms.sql",
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_in_auth_hot_details_v1.sql",
+      // ],
+      // [
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\query\\ycs3.yml",
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\template\\ycs3.ms.sql",
+      //   "C:\\Users\\cvidal\\git\\cvidal\\cvidal\\wipe-ycs-pii\\sp\\dbo.ycs41_mask_pii_in_ycs3_details_v1.sql",
+      // ],
     ]
 
     let promises = queriesTemplateMappings.map(([queries, template, sp]) => Promise.all([

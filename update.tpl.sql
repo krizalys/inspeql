@@ -2,11 +2,17 @@
 IF OBJECT_ID('tempdb..#{{{ staging_table_name }}}') IS NOT NULL
 DROP TABLE #{{{ staging_table_name }}}
 
+CREATE TABLE #{{{ staging_table_name }}}(
+{{ #staging_table_body }}
+    {{{ . }}}
+{{ /staging_table_body }}
+)
+
+INSERT INTO #{{{ staging_table_name }}}
 SELECT
 {{ #fields }}
     {{{ . }}}
 {{ /fields }}
-INTO #{{{ staging_table_name }}}
 FROM {{{ table_name }}} AS {{ table_alias }}
 {{{ joins }}}
 WHERE {{{ conditions }}}
