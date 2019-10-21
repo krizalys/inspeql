@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/krizalys/inspeql#readme",
   "dependencies": {
-    "js-yaml": "^3.11.0",
+    "js-yaml": "^3.13.1",
     "mssql": "^4.1.0",
     "mustache": "^2.3.0"
   }
