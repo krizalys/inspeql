@@ -1,0 +1,288 @@
+--- /c/Users/cvidal/git/cvidal/cvidal/wipe-ycs-pii/dbo.ycs41_mask_pii_by_hotel_id.sql	2018-03-28 19:04:59.703780400 +0700
++++ DELETE_ME.sql	2018-03-28 19:12:01.701707500 +0700
+@@ -79,20 +79,19 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE pehc
+-                SET
+-                    contact_name = @masked_full_name,
++        UPDATE tbl
++        SET contact_name = @masked_full_name,
+                     rec_status = -1,
+                     rec_modify_when = @now,
+                     rec_modify_by = @rec_modified_by
+-                FROM Agoda_Core.dbo.product_ec_hotel_contacts AS pehc
+-                INNER JOIN #product_ec_hotel_contacts AS temp ON pehc.product_ec_hotel_contact_id = temp.product_ec_hotel_contact_id
++        FROM Agoda_Core.dbo.product_ec_hotel_contacts AS tbl
++        INNER JOIN #product_ec_hotel_contacts AS stg ON tbl.product_ec_hotel_contact_id = stg.product_ec_hotel_contact_id
+             END
+         END
+ 
+         DROP TABLE #product_ec_hotel_contacts
+ 
+-        -- Agoda_Core.dbo.product_contacts -----------------------------------------
++-- Agoda_Core.dbo.product_contacts
+         IF OBJECT_ID('tempdb..#product_contacts_email_address') IS NOT NULL DROP TABLE #product_contacts_email_address
+ 
+         SELECT
+@@ -104,6 +103,7 @@
+             pc.rec_modify_by
+         INTO #product_contacts_email_address
+         FROM Agoda_Core.dbo.product_contacts AS pc
++
+         WHERE
+             product_id = @hotel_id
+             AND lower(ltrim(rtrim(contact_method_value))) = @email_address
+@@ -117,20 +117,20 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE pc
+-                SET
+-                    contact_method_value = @masked_email_address,
++        UPDATE tbl
++        SET contact_method_value = @masked_email_address,
+                     contact_method_remark = @masked_other,
+                     rec_status = -1,
+                     rec_modify_when = @now,
+                     rec_modify_by = @rec_modified_by
+-                FROM Agoda_Core.dbo.product_contacts AS pc
+-                INNER JOIN #product_contacts_email_address AS temp ON pc.product_contact_id = temp.product_contact_id
++        FROM Agoda_Core.dbo.product_contacts AS tbl
++        INNER JOIN #product_contacts_email_address AS stg ON tbl.product_contact_id = stg.product_contact_id
+             END
+         END
+ 
+         DROP TABLE #product_contacts_email_address
+ 
++-- Agoda_Core.dbo.product_contacts
+         IF OBJECT_ID('tempdb..#product_contacts_phone_number') IS NOT NULL DROP TABLE #product_contacts_phone_number
+ 
+         SELECT
+@@ -142,6 +142,7 @@
+             pc.rec_modify_by
+         INTO #product_contacts_phone_number
+         FROM Agoda_Core.dbo.product_contacts AS pc
++
+         WHERE
+             product_id = @hotel_id
+             AND ltrim(rtrim(contact_method_value)) = @phone_number
+@@ -155,20 +156,20 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE pc
+-                SET
+-                    contact_method_value = @masked_phone_number,
++        UPDATE tbl
++        SET contact_method_value = @masked_phone_number,
+                     contact_method_remark = @masked_other,
+                     rec_status = -1,
+                     rec_modify_when = @now,
+                     rec_modify_by = @rec_modified_by
+-                FROM Agoda_Core.dbo.product_contacts AS pc
+-                INNER JOIN #product_contacts_phone_number AS temp ON pc.product_contact_id = temp.product_contact_id
++        FROM Agoda_Core.dbo.product_contacts AS tbl
++        INNER JOIN #product_contacts_phone_number AS stg ON tbl.product_contact_id = stg.product_contact_id
+             END
+         END
+ 
+         DROP TABLE #product_contacts_phone_number
+ 
++-- Agoda_Core.dbo.product_contacts
+         IF OBJECT_ID('tempdb..#product_contacts_url') IS NOT NULL DROP TABLE #product_contacts_url
+ 
+         SELECT
+@@ -180,6 +181,7 @@
+             pc.rec_modify_by
+         INTO #product_contacts_url
+         FROM Agoda_Core.dbo.product_contacts AS pc
++
+         WHERE
+             product_id = @hotel_id
+             AND ltrim(rtrim(contact_method_value)) = @url
+@@ -193,21 +195,20 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE pc
+-                SET
+-                    contact_method_value = @masked_url,
++        UPDATE tbl
++        SET contact_method_value = @masked_url,
+                     contact_method_remark = @masked_other,
+                     rec_status = -1,
+                     rec_modify_when = @now,
+                     rec_modify_by = @rec_modified_by
+-                FROM Agoda_Core.dbo.product_contacts AS pc
+-                INNER JOIN #product_contacts_url AS temp ON pc.product_contact_id = temp.product_contact_id
++        FROM Agoda_Core.dbo.product_contacts AS tbl
++        INNER JOIN #product_contacts_url AS stg ON tbl.product_contact_id = stg.product_contact_id
+             END
+         END
+ 
+         DROP TABLE #product_contacts_url
+ 
+-        -- Agoda_Core.dbo.property_contact_person ----------------------------------
++-- Agoda_Core.dbo.property_contact_person
+         IF OBJECT_ID('tempdb..#property_contact_person') IS NOT NULL DROP TABLE #property_contact_person
+ 
+         SELECT
+@@ -233,15 +234,14 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE pcp
+-                SET
+-                    contact_person_role_id = (SELECT TOP 1 contact_person_role_id FROM Agoda_Core.dbo.property_contact_person_role WHERE contact_person_role_id <> pcp.contact_person_role_id),
++        UPDATE tbl
++        SET contact_person_role_id = (SELECT TOP 1 contact_person_role_id FROM Agoda_Core.dbo.property_contact_person_role WHERE contact_person_role_id <> pcp.contact_person_role_id),
+                     note = @masked_other,
+                     is_active = 0,
+                     lastupdated_when = @now,
+                     lastupdated_by = @rec_modified_by
+-                FROM Agoda_Core.dbo.property_contact_person AS pcp
+-                INNER JOIN #property_contact_person AS temp ON pcp.property_contact_person_id = temp.property_contact_person_id
++        FROM Agoda_Core.dbo.property_contact_person AS tbl
++        INNER JOIN #property_contact_person AS stg ON tbl.property_contact_person_id = stg.property_contact_person_id
+             END
+         END
+ 
+@@ -273,22 +273,21 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE cpmm
+-                SET
+-                    contact_method_value = @masked_email_address,
++        UPDATE tbl
++        SET contact_method_value = @masked_email_address,
+                     is_active = 0,
+                     lastupdated_by = @rec_modified_by,
+                     lastupdated_when = @now
+-                FROM Agoda_Core.dbo.contact_person_method_mapping AS cpmm
+-                INNER JOIN #contact_person_method_mapping_email_address AS temp
+-                    ON cpmm.contact_person_id = temp.contact_person_id
+-                    AND cpmm.contact_method_id = temp.contact_method_id
+-                    AND cpmm.contact_method_value = temp.contact_method_value
++        FROM Agoda_Core.dbo.contact_person_method_mapping AS tbl
++        INNER JOIN #contact_person_method_mapping_email_address AS stg ON tbl.contact_person_id = stg.contact_person_id
++AND tbl.contact_method_id = stg.contact_method_id
++AND tbl.contact_method_value = stg.contact_method_value
+             END
+         END
+ 
+         DROP TABLE #contact_person_method_mapping_email_address
+ 
++-- Agoda_Core.dbo.contact_person_method_mapping
+         IF OBJECT_ID('tempdb..#contact_person_method_mapping_phone_number') IS NOT NULL DROP TABLE #contact_person_method_mapping_phone_number
+ 
+         SELECT
+@@ -314,23 +313,21 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE cpmm
+-                SET
+-                    contact_method_value = @masked_phone_number,
++        UPDATE tbl
++        SET contact_method_value = @masked_phone_number,
+                     is_active = 0,
+                     lastupdated_by = @rec_modified_by,
+                     lastupdated_when = @now
+-                FROM Agoda_Core.dbo.contact_person_method_mapping AS cpmm
+-                INNER JOIN #contact_person_method_mapping_phone_number AS temp
+-                    ON cpmm.contact_person_id = temp.contact_person_id
+-                    AND cpmm.contact_method_id = temp.contact_method_id
+-                    AND cpmm.contact_method_value = temp.contact_method_value
++        FROM Agoda_Core.dbo.contact_person_method_mapping AS tbl
++        INNER JOIN #contact_person_method_mapping_phone_number AS stg ON tbl.contact_person_id = stg.contact_person_id
++AND tbl.contact_method_id = stg.contact_method_id
++AND tbl.contact_method_value = stg.contact_method_value
+             END
+         END
+ 
+         DROP TABLE #contact_person_method_mapping_phone_number
+ 
+-        -- Agoda_Core.dbo.contact_person -------------------------------------------
++-- Agoda_Core.dbo.contact_person
+         IF OBJECT_ID('tempdb..#contact_person') IS NOT NULL DROP TABLE #contact_person
+ 
+         SELECT
+@@ -358,22 +355,21 @@
+             END
+             ELSE
+             BEGIN
+-                UPDATE cp
+-                SET
+-                    contact_prefix_type_id = NULL,
++        UPDATE tbl
++        SET contact_prefix_type_id = NULL,
+                     first_name = @masked_first_name,
+                     last_name = @masked_last_name,
+                     is_active = 0,
+                     lastupdated_by = @rec_modified_by,
+                     lastupdated_when = @now
+-                FROM Agoda_Core.dbo.contact_person AS cp
+-                INNER JOIN #contact_person AS temp ON cp.contact_person_id = temp.contact_person_id
++        FROM Agoda_Core.dbo.contact_person AS tbl
++        INNER JOIN #contact_person AS stg ON tbl.contact_person_id = stg.contact_person_id
+             END
+         END
+ 
+         DROP TABLE #contact_person
+ 
+-        -- Agoda_Core.dbo.product_ec_hotel_contact_info ----------------------------
++-- Agoda_Core.dbo.product_ec_hotel_contact_info
+         IF OBJECT_ID('tempdb..#product_ec_hotel_contact_info') IS NOT NULL DROP TABLE #product_ec_hotel_contact_info
+ 
+         SELECT
+@@ -400,13 +396,22 @@
+             pehci.county_id
+         INTO #product_ec_hotel_contact_info
+         FROM Agoda_Core.dbo.product_ec_hotel_contact_info AS pehci
++
+         WHERE
+             pehci.hotel_id = @hotel_id
+             AND lower(ltrim(rtrim(email_address))) = @email_address
+ 
+-        UPDATE pehci
+-        SET
+-            country_id = 0,
++IF EXISTS(SELECT 1 FROM #product_ec_hotel_contact_info)
++BEGIN
++    IF @dry_run = 1
++    BEGIN
++        SELECT 'Found matches in Agoda_Core.dbo.product_ec_hotel_contact_info'
++        SELECT * FROM #product_ec_hotel_contact_info
++    END
++    ELSE
++    BEGIN
++        UPDATE tbl
++        SET country_id = 0,
+             state_id = 0,
+             city_id = 0,
+             street_address = @masked_other,
+@@ -426,11 +431,14 @@
+             latitude = NULL,
+             longitude = NULL,
+             county_id = NULL
+-        FROM Agoda_Core.dbo.product_ec_hotel_contact_info AS pehci
+-        INNER JOIN #product_ec_hotel_contact_info AS temp ON pehci.registration_id = temp.registration_id
++        FROM Agoda_Core.dbo.product_ec_hotel_contact_info AS tbl
++        INNER JOIN #product_ec_hotel_contact_info AS stg ON tbl.registration_id = stg.registration_id
++    END
++END
+ 
+         DROP TABLE #product_ec_hotel_contact_info
+ 
++
+         ROLLBACK
+     END TRY
+ 
+@@ -443,3 +451,4 @@
+     END CATCH
+ END
+ GO
++
